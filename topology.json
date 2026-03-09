@@ -1,0 +1,36 @@
+{
+  "nodes": [
+    {"name":"SEA-ME-WE-4","type":"SUBMARINE","region":"Asia-Pacific","lat":13.0,"lon":80.0,"capacity":1280000},
+    {"name":"FLAG-Cable","type":"SUBMARINE","region":"Europe","lat":51.5,"lon":0.1,"capacity":600000},
+    {"name":"TAT-14","type":"SUBMARINE","region":"North America","lat":40.7,"lon":-74.0,"capacity":640000},
+    {"name":"SEACOM","type":"SUBMARINE","region":"Africa","lat":-26.0,"lon":28.0,"capacity":1280000},
+    {"name":"SAm-1","type":"SUBMARINE","region":"South America","lat":-23.5,"lon":-46.6,"capacity":340000},
+    {"name":"Southern-Cross","type":"SUBMARINE","region":"Oceania","lat":-33.8,"lon":151.2,"capacity":620000},
+    {"name":"AWS-us-east","type":"DATACENTER","region":"North America","lat":39.0,"lon":-77.0,"capacity":999999},
+    {"name":"AWS-eu-frankfurt","type":"DATACENTER","region":"Europe","lat":50.1,"lon":8.6,"capacity":999999},
+    {"name":"Google-asia-tokyo","type":"DATACENTER","region":"Asia-Pacific","lat":35.6,"lon":139.6,"capacity":999999},
+    {"name":"Azure-brazil","type":"DATACENTER","region":"South America","lat":-23.5,"lon":-46.6,"capacity":999999},
+    {"name":"AWS-af-capetown","type":"DATACENTER","region":"Africa","lat":-33.9,"lon":18.4,"capacity":999999},
+    {"name":"AWS-ap-sydney","type":"DATACENTER","region":"Oceania","lat":-33.8,"lon":151.2,"capacity":999999},
+    {"name":"Starlink-NA","type":"SATELLITE","region":"North America","lat":0.0,"lon":0.0,"capacity":500000},
+    {"name":"Starlink-EU","type":"SATELLITE","region":"Europe","lat":0.0,"lon":0.0,"capacity":500000},
+    {"name":"Intelsat-Asia","type":"SATELLITE","region":"Asia-Pacific","lat":0.0,"lon":0.0,"capacity":200000},
+    {"name":"SES-Africa","type":"SATELLITE","region":"Africa","lat":0.0,"lon":0.0,"capacity":150000}
+  ],
+  "edges": [
+    {"from":"SEA-ME-WE-4","to":"AWS-eu-frankfurt","bandwidth":640000,"latency":120,"failure_prob":0.05},
+    {"from":"SEA-ME-WE-4","to":"Google-asia-tokyo","bandwidth":640000,"latency":60,"failure_prob":0.05},
+    {"from":"FLAG-Cable","to":"AWS-us-east","bandwidth":300000,"latency":80,"failure_prob":0.04},
+    {"from":"FLAG-Cable","to":"AWS-eu-frankfurt","bandwidth":300000,"latency":20,"failure_prob":0.03},
+    {"from":"TAT-14","to":"AWS-us-east","bandwidth":320000,"latency":70,"failure_prob":0.03},
+    {"from":"TAT-14","to":"AWS-eu-frankfurt","bandwidth":320000,"latency":75,"failure_prob":0.03},
+    {"from":"SEACOM","to":"AWS-af-capetown","bandwidth":640000,"latency":50,"failure_prob":0.06},
+    {"from":"SAm-1","to":"Azure-brazil","bandwidth":170000,"latency":30,"failure_prob":0.07},
+    {"from":"SAm-1","to":"AWS-us-east","bandwidth":170000,"latency":100,"failure_prob":0.06},
+    {"from":"Southern-Cross","to":"AWS-ap-sydney","bandwidth":310000,"latency":20,"failure_prob":0.04},
+    {"from":"Starlink-NA","to":"AWS-us-east","bandwidth":250000,"latency":600,"failure_prob":0.08},
+    {"from":"Starlink-EU","to":"AWS-eu-frankfurt","bandwidth":250000,"latency":600,"failure_prob":0.08},
+    {"from":"Intelsat-Asia","to":"Google-asia-tokyo","bandwidth":100000,"latency":600,"failure_prob":0.10},
+    {"from":"SES-Africa","to":"AWS-af-capetown","bandwidth":75000,"latency":600,"failure_prob":0.12}
+  ]
+}
