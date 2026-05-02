@@ -1,5 +1,5 @@
 #include "heuristics.h"
-#include "dijkstra.h"
+#include "astar.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,11 +10,11 @@ float compute_betweenness(Graph* g, int node_id) {
     if(g->node_count == 0) return 0.0f;
     int paths_through_node = 0;
     
-    int reach_with = count_reachable(g, 0); 
+    int reach_with = count_reachable_astar(g, 0); 
     
     int temp = g->nodes[node_id].is_active;
     g->nodes[node_id].is_active = 0;
-    int reach_without = count_reachable(g, 0);
+    int reach_without = count_reachable_astar(g, 0);
     g->nodes[node_id].is_active = temp;
     
     if (reach_with > reach_without) {

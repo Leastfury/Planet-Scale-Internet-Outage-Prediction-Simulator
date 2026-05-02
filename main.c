@@ -6,9 +6,14 @@
 #include "graph/edge.h"
 #include "failures/failure_engine.h"
 #include "failures/cascade.h"
-#include "ai/dijkstra.h"
+#include "ai/astar.h"
 #include "ai/expert_system.h"
 #include "ai/heuristics.h"
+#include "ai/hmm.h"
+#include "ai/bayesian.h"
+#include "ai/qlearning.h"
+#include "ai/genetic.h"
+#include "ai/minimax.h"
 #include "simulation/scheduler.h"
 #include "simulation/metrics.h"
 #include "output/visualizer.h"
@@ -19,11 +24,13 @@
 #include <windows.h>
 #endif
 
+#include <stdbool.h>
+
 
 void show_menu() {
     printf("\n");
     printf("+------------------------------------------------------+\n");
-    printf("|       PLANET-SCALE OUTAGE SIMULATOR  v1.0            |\n");
+    printf("|       PLANET-SCALE OUTAGE SIMULATOR              |\n");
     printf("+------------------------------------------------------+\n");
     printf("|   1.  Simulate Submarine Cable Cut                   |\n");
     printf("|   2.  Simulate Data Center Failure                   |\n");
@@ -36,6 +43,8 @@ void show_menu() {
     printf("|   9.  View Region Metrics Table                      |\n");
     printf("|   10. Load New Dataset File                          |\n");
     printf("|   11. Reset Simulation                               |\n");
+    printf("|   12. Run Genetic Algorithm (Optimize Hardening)     |\n");
+    printf("|   13. Run Adversarial Stress Test (Minimax)          |\n");
     printf("|   0.  Exit                                           |\n");
     printf("+------------------------------------------------------+\n");
     printf("   Select option: ");
@@ -62,9 +71,19 @@ void sim_failure(Graph* g, Scheduler* s, int type, const char* name) {
     }
 }
 
-int main() {
+int main(int argc, char** argv) {
     Graph* g = init_graph(50, 50);
     Scheduler* s = init_scheduler();
+    
+    // Check for CLI flags
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--train-rl") == 0) {
+            train_episodes(g, 100);
+            free_graph(g);
+            free_scheduler(s);
+            return 0;
+        }
+    }
     
     printf("═══════════════════════════════════════\n");
     printf("  Loading topology data...\n");
@@ -183,6 +202,19 @@ int main() {
                 load_topology(g);
                 update_metrics(g);
                 print_ascii_map(g);
+                break;
+            case 12: {
+                int budget = 5000;
+                int gens = 50;
+                printf("Enter budget for upgrades (Mbps): ");
+                scanf("%d", &budget);
+                printf("Enter number of generations: ");
+                scanf("%d", &gens);
+                optimize_hardening(g, gens, budget);
+                break;
+            }
+            case 13:
+                run_adversarial_simulation(g);
                 break;
         }
     }

@@ -10,6 +10,7 @@ typedef struct Edge {
     float failure_prob;     // 0.0-1.0
     int   is_active;
     int   current_load;     // Mbps currently flowing
+    float pheromone;        // For ACO
 } Edge;
 
 #endif

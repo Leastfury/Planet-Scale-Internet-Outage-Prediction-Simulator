@@ -6,6 +6,9 @@
 #define EVT_RECOVERY 2
 #define EVT_REROUTE  3
 #define EVT_OVERLOAD 4
+#define EVT_PREDICTED_FAILURE 5
+#define EVT_LIKELY_FAILURE 6
+#define EVT_ANOMALY_ALERT 7
 
 typedef struct Event {
     int   time;             // simulation minute
