@@ -45,7 +45,15 @@ int select_action(QLearning* ql, int state, int is_training) {
             return rand() % 5;
         }
     }
-    
+
+    /* Fix: if all Q values are equal (e.g. all zero = untrained state),
+       pick randomly instead of always defaulting to action 0 */
+    int all_equal = 1;
+    for (int a = 1; a < 5; a++) {
+        if (ql->Q[state][a] != ql->Q[state][0]) { all_equal = 0; break; }
+    }
+    if (all_equal) return rand() % 5;
+
     int best_action = 0;
     float best_q = ql->Q[state][0];
     for (int a = 1; a < 5; a++) {
@@ -71,21 +79,42 @@ void train_episodes(Graph* g, int episodes) {
     QLearning ql;
     init_qlearning(&ql);
     g_silent_mode = 1;
-    
+
+    int print_interval = episodes / 10;
+    if (print_interval == 0) print_interval = 1;
+
     for (int ep = 0; ep < episodes; ep++) {
-        for(int i=0; i<g->node_count; i++) g->nodes[i].is_active = 1;
-        for(int i=0; i<g->edge_count; i++) g->edges[i].is_active = 1;
-        
+        /* Reset all nodes/edges to active */
+        for (int i = 0; i < g->node_count; i++) {
+            g->nodes[i].is_active = 1;
+            /* Fix 2: randomize starting load so load-based states get explored */
+            if (g->nodes[i].capacity > 0) {
+                g->nodes[i].current_load = (rand() % g->nodes[i].capacity);
+            }
+        }
+        for (int i = 0; i < g->edge_count; i++) g->edges[i].is_active = 1;
+
+        /* Fix 3: decay epsilon over episodes so agent exploits more as it learns */
+        ql.epsilon = 0.8f * (1.0f - (float)ep / episodes) + 0.05f;
+
         int state = discretize_state(g);
-        
-        for(int step=0; step<50; step++) {
-            if (rand() % 10 == 0) {
+
+        /* Fix 1: more steps per episode for better coverage */
+        for (int step = 0; step < 100; step++) {
+            /* Randomly break a node (20% chance — increased from 10%) */
+            if (rand() % 5 == 0) {
                 int target = rand() % g->node_count;
                 g->nodes[target].is_active = 0;
             }
-            
+
+            /* Randomly vary load to explore load-based states */
+            int ln = rand() % g->node_count;
+            if (g->nodes[ln].capacity > 0) {
+                g->nodes[ln].current_load = rand() % g->nodes[ln].capacity;
+            }
+
             int action = select_action(&ql, state, 1);
-            
+
             if (action == ACTION_REROUTE) {
                 reroute_traffic_astar(g, rand() % g->node_count);
             } else if (action == ACTION_ACTIVATE_BACKUP) {
@@ -93,27 +122,36 @@ void train_episodes(Graph* g, int episodes) {
                 g->nodes[n].capacity += 100;
             } else if (action == ACTION_THROTTLE) {
                 int n = rand() % g->node_count;
-                g->nodes[n].current_load /= 2;
+                if (g->nodes[n].current_load > 0)
+                    g->nodes[n].current_load /= 2;
             } else if (action == ACTION_INCREASE_CAP) {
                 int n = rand() % g->node_count;
                 g->nodes[n].capacity += 500;
             }
-            
+
             int next_state = discretize_state(g);
-            
+
+            /* Reward: penalize failures AND high load */
             int failed = 0;
-            for(int i=0; i<g->node_count; i++) if (!g->nodes[i].is_active) failed++;
-            float reward = -((float)failed * 10.0f);
-            
+            float max_load = 0.0f;
+            for (int i = 0; i < g->node_count; i++) {
+                if (!g->nodes[i].is_active) failed++;
+                if (g->nodes[i].capacity > 0) {
+                    float l = (float)g->nodes[i].current_load / g->nodes[i].capacity;
+                    if (l > max_load) max_load = l;
+                }
+            }
+            float reward = -((float)failed * 10.0f) - (max_load * 5.0f);
+
             update_q(&ql, state, action, reward, next_state);
             state = next_state;
         }
-        
-        if (ep % (episodes/10 == 0 ? 1 : episodes/10) == 0) {
-            printf("Episode %d/%d completed.\n", ep, episodes);
+
+        if (ep % print_interval == 0) {
+            printf("Episode %d/%d completed. (epsilon=%.2f)\n", ep, episodes, ql.epsilon);
         }
     }
-    
+
     g_silent_mode = 0;
     save_qtable(&ql, "qtable.bin");
     printf("[Q-LEARNING] Training complete. Q-Table saved to 'qtable.bin'\n");

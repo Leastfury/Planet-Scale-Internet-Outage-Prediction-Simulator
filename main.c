@@ -74,17 +74,7 @@ void sim_failure(Graph* g, Scheduler* s, int type, const char* name) {
 int main(int argc, char** argv) {
     Graph* g = init_graph(50, 50);
     Scheduler* s = init_scheduler();
-    
-    // Check for CLI flags
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--train-rl") == 0) {
-            train_episodes(g, 100);
-            free_graph(g);
-            free_scheduler(s);
-            return 0;
-        }
-    }
-    
+
     printf("---------------------------------------\n");
     printf("  Loading topology data...\n");
     int src = load_topology(g);
@@ -93,7 +83,17 @@ int main(int argc, char** argv) {
     else                       printf("  Using built-in topology data\n");
     printf("  Nodes: %d  Edges: %d\n", g->node_count, g->edge_count);
     printf("---------------------------------------\n");
-    
+
+    // Check for CLI flags (after topology is loaded)
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--train-rl") == 0) {
+            train_episodes(g, 500);
+            free_graph(g);
+            free_scheduler(s);
+            return 0;
+        }
+    }
+
     update_metrics(g);
     
     int choice = -1;
