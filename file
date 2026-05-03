@@ -1,0 +1,264 @@
+---------------------------------------
+  Loading topology data...
+  Loaded from topology.csv
+  Nodes: 16  Edges: 14
+---------------------------------------
+
++------------------------------------------------------+
+|       PLANET-SCALE OUTAGE SIMULATOR              |
++------------------------------------------------------+
+|   1.  Simulate Submarine Cable Cut                   |
+|   2.  Simulate Data Center Failure                   |
+|   3.  Simulate Satellite Outage                      |
+|   4.  Simulate Solar Storm  [Multi-Failure Scenario] |
+|   5.  Run AI Vulnerability Scan                      |
+|   6.  Generate AI Prediction Report                  |
+|   7.  Generate Resilience Recommendations            |
+|   8.  View Current Network Topology                  |
+|   9.  View Region Metrics Table                      |
+|   10. Load New Dataset File                          |
+|   11. Reset Simulation                               |
+|   12. Run Genetic Algorithm (Optimize Hardening)     |
+|   13. Run Adversarial Stress Test (Minimax)          |
+|   0.  Exit                                           |
++------------------------------------------------------+
+   Select option: 1
+--- Submarine Cables ---
+ID:   0 | SEA-ME-WE-4 (Asia-Pacific)
+ID:   1 | FLAG-Cable (Europe)
+ID:   2 | TAT-14 (North America)
+ID:   3 | SEACOM (Africa)
+ID:   4 | SAm-1 (South America)
+ID:   5 | Southern-Cross (Oceania)
+Enter node ID: 5
+
+[T+  1min] Manual failure injected for node 5
+[Q-LEARNING] Controller selected action 0 for state 165
+[ISOLATED] Region Oceania has no route to North America
+
++--------------------------------------------------------------+
+|          PLANET-SCALE OUTAGE SIMULATOR  v1.0                 |
+|                  GLOBAL NETWORK STATUS                       |
++--------------------------------------------------------------+
+|  Network Map Updated Live                                    |
++--------------------------------------------------------------+
+|                                                              |
+|   [NA ###### ONLINE   100%]    [EU ###### ONLINE   100%]   |
+|          \                          /                        |
+|           ~~~~~~~~~~ATLANTIC~~~~~~~~                         |
+|          /                          \                        |
+|  [SA ###### ONLINE   100%]   [AF ###### ONLINE   100%]     |
+|                  \                  /                        |
+|                   ~~~~~~INDIAN~~~~~~                         |
+|                                    \                         |
+|                    [AS ###### ONLINE   100%]                |
+|                              |                               |
+|                       ~~~~~PACIFIC~~~~~                      |
+|                              |                               |
+|                    [OC ###... DEGRADED  50%]                 |
+|                                                              |
++--------------------------------------------------------------+
+|  # = Active node   . = Failed node                           |
+|  ONLINE >70%   DEGRADED 30-70%   OFFLINE <30%                |
++--------------------------------------------------------------+
+
++------------------------------------------------------+
+|       PLANET-SCALE OUTAGE SIMULATOR              |
++------------------------------------------------------+
+|   1.  Simulate Submarine Cable Cut                   |
+|   2.  Simulate Data Center Failure                   |
+|   3.  Simulate Satellite Outage                      |
+|   4.  Simulate Solar Storm  [Multi-Failure Scenario] |
+|   5.  Run AI Vulnerability Scan                      |
+|   6.  Generate AI Prediction Report                  |
+|   7.  Generate Resilience Recommendations            |
+|   8.  View Current Network Topology                  |
+|   9.  View Region Metrics Table                      |
+|   10. Load New Dataset File                          |
+|   11. Reset Simulation                               |
+|   12. Run Genetic Algorithm (Optimize Hardening)     |
+|   13. Run Adversarial Stress Test (Minimax)          |
+|   0.  Exit                                           |
++------------------------------------------------------+
+   Select option: 6
+
++--------------------------------------------------------------+
+|                AI VULNERABILITY REPORT                       |
+|           Planet-Scale Outage Prediction System              |
++--------------------------------------------------------------+
+|  Node               Region         Risk    Status            |
++--------------------------------------------------------------+
+|  SEACOM             Africa          85/100  CRITICAL       |
+|  Reason   : Single point of failure, Africa isolated if cut      |
+|  Cascade  : Africa region loses all connectivity                 |
+|  Fix      : Add at least 2 redundant cables bypassing node       |
++--------------------------------------------------------------+
+|  Southern-Cross     Oceania        100/100  CRITICAL       |
+|  Reason   : Single point of failure, Oceania isolated if cut     |
+|  Cascade  : Oceania region loses all connectivity                |
+|  Fix      : Add at least 2 redundant cables bypassing node       |
++--------------------------------------------------------------+
+|  AWS-us-east        North America  100/100  CRITICAL       |
+|  Reason   : Critical network bridge, risk score 100/100          |
+|  Cascade  : Multiple regions lose inter-connectivity             |
+|  Fix      : Deploy redundant parallel path and CDN nodes         |
++--------------------------------------------------------------+
+|  AWS-eu-frankfurt   Europe         100/100  CRITICAL       |
+|  Reason   : Critical network bridge, risk score 100/100          |
+|  Cascade  : Multiple regions lose inter-connectivity             |
+|  Fix      : Deploy redundant parallel path and CDN nodes         |
++--------------------------------------------------------------+
+|  Google-asia-tokyo  Asia-Pacific   100/100  CRITICAL       |
+|  Reason   : Critical network bridge, risk score 100/100          |
+|  Cascade  : Multiple regions lose inter-connectivity             |
+|  Fix      : Deploy redundant parallel path and CDN nodes         |
++--------------------------------------------------------------+
+|  Azure-brazil       South America   90/100  CRITICAL       |
+|  Reason   : Critical network bridge, risk score 90/100           |
+|  Cascade  : Multiple regions lose inter-connectivity             |
+|  Fix      : Deploy redundant parallel path and CDN nodes         |
++--------------------------------------------------------------+
+|  AWS-af-capetown    Africa         100/100  CRITICAL       |
+|  Reason   : Critical network bridge, risk score 100/100          |
+|  Cascade  : Multiple regions lose inter-connectivity             |
+|  Fix      : Deploy redundant parallel path and CDN nodes         |
++--------------------------------------------------------------+
+|  AWS-ap-sydney      Oceania        100/100  CRITICAL       |
+|  Reason   : Critical network bridge, risk score 100/100          |
+|  Cascade  : Multiple regions lose inter-connectivity             |
+|  Fix      : Deploy redundant parallel path and CDN nodes         |
++--------------------------------------------------------------+
+|  Starlink-NA        North America   50/100  HIGH           |
+|  Reason   : Sole satellite backup for North America, no failover |
+|  Cascade  : North America loses last-resort backup link entirely |
+|  Fix      : Add second satellite or ground station coverage      |
++--------------------------------------------------------------+
+|  Starlink-EU        Europe          50/100  HIGH           |
+|  Reason   : Sole satellite backup for Europe, no failover        |
+|  Cascade  : Europe loses last-resort backup link entirely        |
+|  Fix      : Add second satellite or ground station coverage      |
++--------------------------------------------------------------+
+|  Intelsat-Asia      Asia-Pacific    50/100  HIGH           |
+|  Reason   : Sole satellite backup for Asia-Pacific, no failover  |
+|  Cascade  : Asia-Pacific loses last-resort backup link entirely  |
+|  Fix      : Add second satellite or ground station coverage      |
++--------------------------------------------------------------+
+|  SES-Africa         Africa          50/100  HIGH           |
+|  Reason   : Sole satellite backup for Africa, no failover        |
+|  Cascade  : Africa loses last-resort backup link entirely        |
+|  Fix      : Add second satellite or ground station coverage      |
++--------------------------------------------------------------+
+|  OVERALL NETWORK RESILIENCE SCORE: 37/100                    |
+|  Status: [VULNERABLE ]                                       |
++--------------------------------------------------------------+
+
++------------------------------------------------------+
+|       PLANET-SCALE OUTAGE SIMULATOR              |
++------------------------------------------------------+
+|   1.  Simulate Submarine Cable Cut                   |
+|   2.  Simulate Data Center Failure                   |
+|   3.  Simulate Satellite Outage                      |
+|   4.  Simulate Solar Storm  [Multi-Failure Scenario] |
+|   5.  Run AI Vulnerability Scan                      |
+|   6.  Generate AI Prediction Report                  |
+|   7.  Generate Resilience Recommendations            |
+|   8.  View Current Network Topology                  |
+|   9.  View Region Metrics Table                      |
+|   10. Load New Dataset File                          |
+|   11. Reset Simulation                               |
+|   12. Run Genetic Algorithm (Optimize Hardening)     |
+|   13. Run Adversarial Stress Test (Minimax)          |
+|   0.  Exit                                           |
++------------------------------------------------------+
+   Select option: 12
+Enter budget for upgrades (Mbps): 1000
+Enter number of generations: 5
+
+[GENETIC] Optimizing network hardening...
+Budget: 1000 Mbps capacity upgrades
+Generation 1: Best Fitness = 0.0325
+Generation 2: Best Fitness = 0.0325
+Generation 3: Best Fitness = 0.0325
+Generation 4: Best Fitness = 0.0344
+Generation 5: Best Fitness = 0.0355
+
+[GENETIC] Optimization Complete. Recommended Upgrades:
+  + 112 Mbps to Node 0 (SEA-ME-WE-4)
+  + 44 Mbps to Node 1 (FLAG-Cable)
+  + 10 Mbps to Node 2 (TAT-14)
+  + 22 Mbps to Node 3 (SEACOM)
+  + 72 Mbps to Node 4 (SAm-1)
+  + 164 Mbps to Node 5 (Southern-Cross)
+  + 51 Mbps to Node 6 (AWS-us-east)
+  + 161 Mbps to Node 7 (AWS-eu-frankfurt)
+  + 73 Mbps to Node 8 (Google-asia-tokyo)
+  + 9 Mbps to Node 9 (Azure-brazil)
+  + 143 Mbps to Node 10 (AWS-af-capetown)
+  + 39 Mbps to Node 11 (AWS-ap-sydney)
+  + 42 Mbps to Node 12 (Starlink-NA)
+  + 31 Mbps to Node 14 (Intelsat-Asia)
+  + 27 Mbps to Node 15 (SES-Africa)
+
++------------------------------------------------------+
+|       PLANET-SCALE OUTAGE SIMULATOR              |
++------------------------------------------------------+
+|   1.  Simulate Submarine Cable Cut                   |
+|   2.  Simulate Data Center Failure                   |
+|   3.  Simulate Satellite Outage                      |
+|   4.  Simulate Solar Storm  [Multi-Failure Scenario] |
+|   5.  Run AI Vulnerability Scan                      |
+|   6.  Generate AI Prediction Report                  |
+|   7.  Generate Resilience Recommendations            |
+|   8.  View Current Network Topology                  |
+|   9.  View Region Metrics Table                      |
+|   10. Load New Dataset File                          |
+|   11. Reset Simulation                               |
+|   12. Run Genetic Algorithm (Optimize Hardening)     |
+|   13. Run Adversarial Stress Test (Minimax)          |
+|   0.  Exit                                           |
++------------------------------------------------------+
+   Select option: 13
+
+[MINIMAX] Starting Adversarial Stress Test...
+Role 1: Attacker (AI) aims to maximize network partition.
+Role 2: Defender (AI) aims to restore critical nodes.
+
+--- Turn 1 ---
+[ATTACKER] Cut node AWS-eu-frankfurt (score: 12) -> Reachability: 0.12
+
+--- Turn 2 ---
+[DEFENDER] Restored AWS-eu-frankfurt -> Reachability: 0.12
+
+--- Turn 3 ---
+[ATTACKER] Cut node Google-asia-tokyo (score: 12) -> Reachability: 0.13
+
+--- Turn 4 ---
+[DEFENDER] Restored Google-asia-tokyo -> Reachability: 0.12
+
+--- Turn 5 ---
+[ATTACKER] Cut node AWS-us-east (score: 0) -> Reachability: 0.12
+
+--- Turn 6 ---
+[DEFENDER] Restored AWS-us-east -> Reachability: 0.12
+
+[MINIMAX] Adversarial Simulation Complete.
+
++------------------------------------------------------+
+|       PLANET-SCALE OUTAGE SIMULATOR              |
++------------------------------------------------------+
+|   1.  Simulate Submarine Cable Cut                   |
+|   2.  Simulate Data Center Failure                   |
+|   3.  Simulate Satellite Outage                      |
+|   4.  Simulate Solar Storm  [Multi-Failure Scenario] |
+|   5.  Run AI Vulnerability Scan                      |
+|   6.  Generate AI Prediction Report                  |
+|   7.  Generate Resilience Recommendations            |
+|   8.  View Current Network Topology                  |
+|   9.  View Region Metrics Table                      |
+|   10. Load New Dataset File                          |
+|   11. Reset Simulation                               |
+|   12. Run Genetic Algorithm (Optimize Hardening)     |
+|   13. Run Adversarial Stress Test (Minimax)          |
+|   0.  Exit                                           |
++------------------------------------------------------+
+   Select option: 

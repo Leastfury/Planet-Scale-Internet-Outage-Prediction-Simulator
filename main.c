@@ -85,14 +85,14 @@ int main(int argc, char** argv) {
         }
     }
     
-    printf("═══════════════════════════════════════\n");
+    printf("---------------------------------------\n");
     printf("  Loading topology data...\n");
     int src = load_topology(g);
     if (src == FROM_CSV)       printf("  Loaded from topology.csv\n");
     else if (src == FROM_JSON) printf("  Loaded from topology.json\n");
     else                       printf("  Using built-in topology data\n");
     printf("  Nodes: %d  Edges: %d\n", g->node_count, g->edge_count);
-    printf("═══════════════════════════════════════\n");
+    printf("---------------------------------------\n");
     
     update_metrics(g);
     
@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
                         apcn2_edge = i; break;
                     }
                 }
-                add_event(s, 8, EVT_OVERLOAD, -1, apcn2_edge, "APCN-2 reaches 95%% capacity");
+                add_event(s, 8, EVT_OVERLOAD, -1, apcn2_edge, "APCN-2 reaches 95% capacity");
                 add_event(s, 15, EVT_CASCADE, find_node_by_name(g, "APCN-2"), -1, "APCN-2 fails under load");
                 
                 int sat_edge = -1;
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
                 add_event(s, 45, EVT_FAILURE, find_node_by_name(g, "FLAG-Cable"), -1, "Solar storm disrupts FLAG cable amplifiers");
                 add_event(s, 60, EVT_REROUTE, find_node_by_name(g, "Hibernia-Atlantic"), -1, "Europe rerouting via Hibernia");
                 add_event(s, 75, EVT_RECOVERY, find_node_by_name(g, "SEA-ME-WE-4"), -1, "Repair ship reaches cable break");
-                add_event(s, 120, EVT_RECOVERY, find_node_by_name(g, "APCN-2"), -1, "APCN-2 restored at 60%% capacity");
+                add_event(s, 120, EVT_RECOVERY, find_node_by_name(g, "APCN-2"), -1, "APCN-2 restored at 60% capacity");
                 add_event(s, 180, EVT_RECOVERY, find_node_by_name(g, "Google-asia-tokyo"), -1, "Tokyo DC back online");
                 
                 run_simulation(s, g);
@@ -184,14 +184,50 @@ int main(int argc, char** argv) {
                 break;
             case 10: {
                 char filename[256];
-                printf("Enter filename: ");
-                scanf("%255s", filename);
+                printf("Enter filename (or press Enter for default): ");
+                // clear leftover newline from previous scanf input
+                int _ch;
+                while ((_ch = getchar()) != '\n' && _ch != EOF) { }
+                fgets(filename, sizeof(filename), stdin);
+                // Remove newline
+                size_t len = strlen(filename);
+                if (len > 0 && filename[len-1] == '\n') filename[len-1] = '\0';
+                
+                // Use default if empty
+                if (strlen(filename) == 0) {
+                    strcpy(filename, "topology.csv");
+                }
+                
+                // Validate file exists
+                FILE* test = fopen(filename, "r");
+                if (!test) {
+                    printf("[ERROR] File not found: %s\n", filename);
+                    break;
+                }
+                fclose(test);
+                
                 free_graph(g);
                 g = init_graph(50, 50);
-                if (detect_format(filename) == FROM_CSV) load_from_csv(g, filename);
-                else load_from_json(g, filename);
-                update_metrics(g);
-                print_ascii_map(g);
+                
+                int loaded = 0;
+                int format = detect_format(filename);
+                if (format == FROM_CSV) {
+                    loaded = load_from_csv(g, filename);
+                } else if (format == FROM_JSON) {
+                    loaded = load_from_json(g, filename);
+                } else {
+                    printf("[ERROR] Unknown file format (must be .csv or .json)\n");
+                    break;
+                }
+                
+                if (!loaded || g->node_count == 0) {
+                    printf("[ERROR] Failed to load topology from %s\n", filename);
+                } else {
+                    printf("[SUCCESS] Loaded topology from %s (%d nodes, %d edges)\n",
+                           filename, g->node_count, g->edge_count);
+                    update_metrics(g);
+                    print_ascii_map(g);
+                }
                 break;
             }
             case 11:

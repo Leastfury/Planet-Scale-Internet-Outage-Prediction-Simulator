@@ -17,6 +17,8 @@ typedef struct BinaryHeap {
     int capacity;
 } BinaryHeap;
 
+extern int g_silent_mode;
+
 float haversine_heuristic(Node* n1, Node* n2);
 void heap_insert(BinaryHeap* h, AStarNode node);
 AStarNode heap_extract_min(BinaryHeap* h);

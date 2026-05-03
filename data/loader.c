@@ -128,8 +128,8 @@ int load_from_json(Graph* g, const char* filename) {
             
             Node n;
             n.id = g->node_count;
-            strcpy(n.name, name);
-            strcpy(n.region, region);
+            strncpy(n.name, name, 63); n.name[63] = '\0';
+            strncpy(n.region, region, 31); n.region[31] = '\0';
             n.region_id = get_region_id(region);
             n.latitude = lat;
             n.longitude = lon;

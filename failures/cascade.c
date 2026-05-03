@@ -12,6 +12,8 @@ void schedule_cascades(Scheduler* s, Graph* g, int failed_node) {
         int neighbor = (g->edges[edge_idx].from == failed_node) ? g->edges[edge_idx].to : g->edges[edge_idx].from;
         
         if (g->nodes[neighbor].is_active) {
+            g->nodes[neighbor].current_load += load_to_redistribute / 4;
+            
             for (int j = 0; j < g->adj_count[neighbor]; j++) {
                 int n_edge_idx = g->adj[neighbor][j];
                 if (g->edges[n_edge_idx].is_active) {

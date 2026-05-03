@@ -4,6 +4,26 @@
 #include <stdio.h>
 #include <string.h>
 
+static float normalized_reachability(Graph* g) {
+    int active = 0;
+    float total = 0.0f;
+
+    for (int i = 0; i < g->node_count; i++) {
+        if (!g->nodes[i].is_active) continue;
+        total += (float)count_reachable_astar(g, i) / (float)g->node_count;
+        active++;
+    }
+
+    if (active == 0) return 0.0f;
+    return total / (float)active;
+}
+
+static int tournament_select(Chromosome* pop, int size) {
+    int a = rand() % size;
+    int b = rand() % size;
+    return pop[a].fitness >= pop[b].fitness ? a : b;
+}
+
 void init_population(Population* p, Graph* base_g, int budget) {
     for (int i = 0; i < POPULATION_SIZE; i++) {
         p->individuals[i].fitness = 0.0f;
@@ -21,41 +41,52 @@ void init_population(Population* p, Graph* base_g, int budget) {
 }
 
 void evaluate_fitness(Population* p, Graph* base_g) {
+    int base_capacity[MAX_GENETIC_NODES];
+    int original_status[MAX_GENETIC_NODES];
+    for (int n = 0; n < base_g->node_count; n++) {
+        base_capacity[n] = base_g->nodes[n].capacity;
+        original_status[n] = base_g->nodes[n].is_active;
+    }
+
     for (int i = 0; i < POPULATION_SIZE; i++) {
-        float fitness = 0.0f;
-        for (int test = 0; test < 5; test++) {
-            for(int n=0; n<base_g->node_count; n++) {
-                base_g->nodes[n].capacity += p->individuals[i].added_capacities[n];
+        float total_gain = 0.0f;
+
+        for (int test = 0; test < 10; test++) {
+            int demand_mbps[MAX_GENETIC_NODES];
+            for (int n = 0; n < base_g->node_count; n++) {
+                // Keep demand very close to node capacity so small upgrades can help.
+                int jitter = (rand() % 100) - 50;
+                int demand = base_capacity[n] + jitter;
+                if (demand < 0) demand = 0;
+                demand_mbps[n] = demand;
             }
-            
-            int f1 = rand() % base_g->node_count;
-            int f2 = rand() % base_g->node_count;
-            int f3 = rand() % base_g->node_count;
-            int temp1 = base_g->nodes[f1].is_active; base_g->nodes[f1].is_active = 0;
-            int temp2 = base_g->nodes[f2].is_active; base_g->nodes[f2].is_active = 0;
-            int temp3 = base_g->nodes[f3].is_active; base_g->nodes[f3].is_active = 0;
-            
-            int reachable = count_reachable_astar(base_g, 0); 
-            
-            int overloads = 0;
-            for(int n=0; n<base_g->node_count; n++) {
-                if (base_g->nodes[n].is_active && base_g->nodes[n].capacity > 0) {
-                    if (base_g->nodes[n].current_load > base_g->nodes[n].capacity) {
-                        overloads++;
-                    }
-                }
+
+            // Baseline failures (before upgrades)
+            for (int n = 0; n < base_g->node_count; n++) {
+                base_g->nodes[n].is_active = (demand_mbps[n] <= base_capacity[n]) ? 1 : 0;
             }
-            
-            fitness += (float)reachable * 10.0f - (float)overloads * 5.0f;
-            
-            base_g->nodes[f1].is_active = temp1;
-            base_g->nodes[f2].is_active = temp2;
-            base_g->nodes[f3].is_active = temp3;
-            for(int n=0; n<base_g->node_count; n++) {
-                base_g->nodes[n].capacity -= p->individuals[i].added_capacities[n];
+            float before = normalized_reachability(base_g);
+
+            // Failures after applying chromosome upgrades
+            for (int n = 0; n < base_g->node_count; n++) {
+                int upgraded_capacity = base_capacity[n] + p->individuals[i].added_capacities[n];
+                base_g->nodes[n].is_active = (demand_mbps[n] <= upgraded_capacity) ? 1 : 0;
+            }
+            float after = normalized_reachability(base_g);
+
+            total_gain += (after - before);
+
+            // Restore statuses for next trial.
+            for (int n = 0; n < base_g->node_count; n++) {
+                base_g->nodes[n].is_active = original_status[n];
             }
         }
-        p->individuals[i].fitness = fitness / 5.0f;
+        p->individuals[i].fitness = total_gain / 10.0f;
+        if (p->individuals[i].fitness < 0.0f) p->individuals[i].fitness = 0.0f;
+    }
+
+    for (int n = 0; n < base_g->node_count; n++) {
+        base_g->nodes[n].is_active = original_status[n];
     }
 }
 
@@ -122,6 +153,7 @@ void optimize_hardening(Graph* g, int generations, int budget) {
     Chromosome best_overall;
     best_overall.fitness = -99999.0f;
     for(int n=0; n<g->node_capacity; n++) best_overall.added_capacities[n] = 0;
+    float global_best = 0.0f;
     
     for (int gen = 0; gen < generations; gen++) {
         evaluate_fitness(&pop, g);
@@ -136,27 +168,26 @@ void optimize_hardening(Graph* g, int generations, int budget) {
         if (pop.individuals[best_idx].fitness > best_overall.fitness) {
             best_overall = pop.individuals[best_idx];
         }
+        if (pop.individuals[best_idx].fitness > global_best) {
+            global_best = pop.individuals[best_idx].fitness;
+        }
         
         if (gen % (generations/5 == 0 ? 1 : generations/5) == 0 || gen == generations - 1) {
-            printf("Generation %d: Best Fitness = %.2f\n", gen+1, pop.individuals[best_idx].fitness);
+            // Show best-so-far trend so evolution output is monotonic and readable.
+            printf("Generation %d: Best Fitness = %.4f\n", gen+1, global_best);
         }
         
         Population next_pop;
         next_pop.individuals[0] = pop.individuals[best_idx];
-        int second_best = (best_idx == 0) ? 1 : 0;
-        next_pop.individuals[1] = pop.individuals[second_best];
         
-        for (int i = 2; i < POPULATION_SIZE; i++) {
-            int t1 = rand() % POPULATION_SIZE;
-            int t2 = rand() % POPULATION_SIZE;
-            Chromosome* p1 = (pop.individuals[t1].fitness > pop.individuals[t2].fitness) ? &pop.individuals[t1] : &pop.individuals[t2];
-            
-            t1 = rand() % POPULATION_SIZE;
-            t2 = rand() % POPULATION_SIZE;
-            Chromosome* p2 = (pop.individuals[t1].fitness > pop.individuals[t2].fitness) ? &pop.individuals[t1] : &pop.individuals[t2];
+        for (int i = 1; i < POPULATION_SIZE; i++) {
+            int p1_idx = tournament_select(pop.individuals, POPULATION_SIZE);
+            int p2_idx = tournament_select(pop.individuals, POPULATION_SIZE);
+            Chromosome* p1 = &pop.individuals[p1_idx];
+            Chromosome* p2 = &pop.individuals[p2_idx];
             
             next_pop.individuals[i] = crossover(p1, p2, g->node_count, budget);
-            mutate(&next_pop.individuals[i], g->node_count, 0.1f, budget);
+            mutate(&next_pop.individuals[i], g->node_count, 0.15f, budget);
         }
         
         pop = next_pop;

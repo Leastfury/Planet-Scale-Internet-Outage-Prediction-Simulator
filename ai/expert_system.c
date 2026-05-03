@@ -69,10 +69,63 @@ int evaluate_node(Graph* g, int node_id) {
     if (n.capacity > 0 && n.current_load > n.capacity * 0.8 && n.backup_links == 0) {
         score += rules[1].risk_boost;
     }
+
+    // Rule 2: satellite coverage < 30% + cable failed
+    int sat_count = 0, sat_active = 0, cable_failed = 0;
+    for (int j = 0; j < g->node_count; j++) {
+      if (g->nodes[j].type == SATELLITE &&
+        g->nodes[j].region_id == n.region_id) {
+        sat_count++;
+        if (g->nodes[j].is_active) sat_active++;
+      }
+      if (g->nodes[j].type == SUBMARINE_CABLE &&
+        g->nodes[j].region_id == n.region_id &&
+        !g->nodes[j].is_active) cable_failed = 1;
+    }
+    if (sat_count > 0 &&
+      ((float)sat_active / sat_count) < 0.30f &&
+      cable_failed &&
+      (n.type == SATELLITE || n.type == SUBMARINE_CABLE))
+      score += rules[2].risk_boost;
+
+    // Rule 3: datacenter offline + no active DC in region
+    if (n.type == DATACENTER) {
+      int active_dc = 0;
+      for (int j = 0; j < g->node_count; j++) {
+        if (g->nodes[j].type == DATACENTER &&
+          g->nodes[j].region_id == n.region_id &&
+          g->nodes[j].is_active &&
+          j != node_id) active_dc++;
+      }
+      if (active_dc == 0) score += rules[3].risk_boost;
+    }
+
+    // Rule 4: two or more cables failed in same region
+    int cables_failed = 0;
+    for (int j = 0; j < g->node_count; j++) {
+      if (g->nodes[j].type == SUBMARINE_CABLE &&
+        g->nodes[j].region_id == n.region_id &&
+        !g->nodes[j].is_active) cables_failed++;
+    }
+    if (cables_failed >= 2) score += rules[4].risk_boost;
     
     // Rule 5
     if (fabs(n.latitude) > 30.0f) {
         score += rules[5].risk_boost;
+    }
+
+    // Rule 6: traffic spike > 150% on single active route
+    // Proxy: high-capacity node with single route =
+    // traffic concentration and spike risk
+    if (n.capacity > 500000 && g->adj_count[node_id] <= 1) {
+      score += rules[6].risk_boost;
+    }
+
+    // Rule 7: recovery time > 60min (use risk_score as proxy)
+    // Submarine cables take 72+ hours to repair
+    // (well over 60 min threshold in Rule 7)
+    if (n.type == SUBMARINE_CABLE && !n.is_active) {
+      score += rules[7].risk_boost;
     }
     
     if (score > 100) score = 100;

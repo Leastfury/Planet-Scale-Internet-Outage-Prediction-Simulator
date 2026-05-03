@@ -8,6 +8,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+int g_silent_mode = 0;
+
 void sift_up(BinaryHeap* h, int index) {
     while (index > 0) {
         int parent = (index - 1) / 2;
@@ -261,15 +263,15 @@ void reroute_traffic_astar(Graph* g, int failed_node) {
                     }
                 }
                 
-                printf("[REROUTE] Traffic %s->%s:\n", g->nodes[dc].region, g->nodes[other_dc].region);
-                printf("          New path via active nodes (%dms)\n", total_latency);
-                printf("[WARNING] Latency increased due to rerouting\n");
+                if (!g_silent_mode) printf("[REROUTE] Traffic %s->%s:\n", g->nodes[dc].region, g->nodes[other_dc].region);
+                if (!g_silent_mode) printf("          New path via active nodes (%dms)\n", total_latency);
+                if (!g_silent_mode) printf("[WARNING] Latency increased due to rerouting\n");
                 free(path);
             } else {
-                printf("[ISOLATED] Region %s has no route to %s\n", g->nodes[dc].region, g->nodes[other_dc].region);
+                if (!g_silent_mode) printf("[ISOLATED] Region %s has no route to %s\n", g->nodes[dc].region, g->nodes[other_dc].region);
             }
         }
     } else {
-        printf("[ISOLATED] Region %s has no active datacenter for routing\n", g->nodes[failed_node].region);
+        if (!g_silent_mode) printf("[ISOLATED] Region %s has no active datacenter for routing\n", g->nodes[failed_node].region);
     }
 }

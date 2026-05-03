@@ -86,8 +86,10 @@ void update_metrics(Graph* g) {
         
         if (active_edges[r] > 0) {
             g_regions[r].avg_latency = total_latency[r] / active_edges[r];
+            if (g_regions[r].avg_latency <= 0) g_regions[r].avg_latency = 1;
         } else {
-            g_regions[r].avg_latency = 0;
+            // Mark as isolated (no active edge path) to avoid misleading 0ms display.
+            g_regions[r].avg_latency = -1;
         }
         
         if (total_edges[r] > 0) {
@@ -113,7 +115,7 @@ void print_metrics_table(Graph* g) {
     
     for (int r = 0; r < 6; r++) {
         char latency_str[16];
-        if (g_regions[r].avg_latency == 0 && g_regions[r].connectivity_pct == 0) {
+        if (g_regions[r].avg_latency < 0) {
             strcpy(latency_str, "---");
         } else {
             sprintf(latency_str, "%dms", g_regions[r].avg_latency);

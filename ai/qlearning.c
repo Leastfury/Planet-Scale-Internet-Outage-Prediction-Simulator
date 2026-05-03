@@ -33,7 +33,9 @@ int discretize_state(Graph* g) {
     int bucket_load = (int)(max_load * 100);
     if (bucket_load > 99) bucket_load = 99;
     
-    return (bucket_fail * 100) + bucket_load;
+    int state = (bucket_fail * 100) + bucket_load;
+    if (state >= 1000) state = 999;
+    return state;
 }
 
 int select_action(QLearning* ql, int state, int is_training) {
@@ -68,6 +70,7 @@ void train_episodes(Graph* g, int episodes) {
     printf("\n[Q-LEARNING] Starting training for %d episodes...\n", episodes);
     QLearning ql;
     init_qlearning(&ql);
+    g_silent_mode = 1;
     
     for (int ep = 0; ep < episodes; ep++) {
         for(int i=0; i<g->node_count; i++) g->nodes[i].is_active = 1;
@@ -111,6 +114,7 @@ void train_episodes(Graph* g, int episodes) {
         }
     }
     
+    g_silent_mode = 0;
     save_qtable(&ql, "qtable.bin");
     printf("[Q-LEARNING] Training complete. Q-Table saved to 'qtable.bin'\n");
 }

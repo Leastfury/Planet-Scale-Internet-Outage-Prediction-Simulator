@@ -1,0 +1,33 @@
+type,name,region,lat,lon,capacity
+SUBMARINE,SEA-ME-WE-4,Asia-Pacific,13.0,80.0,600000
+SUBMARINE,FLAG-Cable,Europe,51.5,0.1,300000
+SUBMARINE,TAT-14,North America,40.7,-74.0,300000
+SUBMARINE,SEACOM,Africa,-26.0,28.0,450000
+SUBMARINE,SAm-1,South America,-23.5,-46.6,180000
+SUBMARINE,Southern-Cross,Oceania,-33.8,151.2,220000
+DATACENTER,AWS-us-east,North America,39.0,-77.0,600000
+DATACENTER,AWS-eu-frankfurt,Europe,50.1,8.6,600000
+DATACENTER,Google-asia-tokyo,Asia-Pacific,35.6,139.6,600000
+DATACENTER,Azure-brazil,South America,-23.5,-46.6,400000
+DATACENTER,AWS-af-capetown,Africa,-33.9,18.4,350000
+DATACENTER,AWS-ap-sydney,Oceania,-33.8,151.2,350000
+SATELLITE,Starlink-NA,North America,0.0,0.0,120000
+SATELLITE,Starlink-EU,Europe,0.0,0.0,120000
+SATELLITE,Intelsat-Asia,Asia-Pacific,0.0,0.0,80000
+SATELLITE,SES-Africa,Africa,0.0,0.0,50000
+EDGE,SEA-ME-WE-4,AWS-eu-frankfurt,250000,140,0.12
+EDGE,SEA-ME-WE-4,Google-asia-tokyo,250000,90,0.12
+EDGE,FLAG-Cable,AWS-us-east,150000,110,0.15
+EDGE,FLAG-Cable,AWS-eu-frankfurt,150000,35,0.12
+EDGE,TAT-14,AWS-us-east,150000,95,0.10
+EDGE,TAT-14,AWS-eu-frankfurt,150000,100,0.10
+EDGE,SEACOM,AWS-af-capetown,220000,70,0.14
+EDGE,SAm-1,Azure-brazil,90000,45,0.16
+EDGE,SAm-1,AWS-us-east,90000,140,0.16
+EDGE,Southern-Cross,AWS-ap-sydney,110000,35,0.12
+EDGE,Starlink-NA,AWS-us-east,60000,650,0.20
+EDGE,Starlink-EU,AWS-eu-frankfurt,60000,650,0.20
+EDGE,Intelsat-Asia,Google-asia-tokyo,40000,700,0.22
+EDGE,SES-Africa,AWS-af-capetown,25000,700,0.25
+EDGE,AWS-us-east,AWS-eu-frankfurt,100000,130,0.18
+EDGE,AWS-eu-frankfurt,Google-asia-tokyo,100000,170,0.18

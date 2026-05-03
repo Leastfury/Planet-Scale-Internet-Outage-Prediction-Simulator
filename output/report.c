@@ -2,6 +2,94 @@
 #include "../ai/heuristics.h"
 #include "../ai/expert_system.h"
 #include <stdio.h>
+#include <math.h>
+
+static void build_node_reason(Graph* g, int node_id,
+    char* reason, size_t rlen,
+    char* cascade, size_t clen,
+    char* fix,    size_t flen)
+{
+    Node* n = &g->nodes[node_id];
+
+    // Rule 0: Submarine cable SPOF
+    if (n->type == SUBMARINE_CABLE &&
+        g->adj_count[node_id] <= 1) {
+        snprintf(reason,  rlen,
+            "Single point of failure, %s isolated if cut",
+            n->region);
+        snprintf(cascade, clen,
+            "%s region loses all connectivity", n->region);
+        snprintf(fix,     flen,
+            "Add at least 2 redundant cables bypassing node");
+        return;
+    }
+
+    // Rule 1: High risk score = critical bridge node
+    if (n->risk_score >= 70.0f) {
+        snprintf(reason,  rlen,
+            "Critical network bridge, risk score %.0f/100",
+            n->risk_score);
+        snprintf(cascade, clen,
+            "Multiple regions lose inter-connectivity");
+        snprintf(fix,     flen,
+            "Deploy redundant parallel path and CDN nodes");
+        return;
+    }
+
+    // Rule 2: Satellite — sole backup link for region
+    if (n->type == SATELLITE) {
+        snprintf(reason,  rlen,
+            "Sole satellite backup for %s, no failover",
+            n->region);
+        snprintf(cascade, clen,
+            "%s loses last-resort backup link entirely",
+            n->region);
+        snprintf(fix,     flen,
+            "Add second satellite or ground station coverage");
+        return;
+    }
+
+    // Rule 3: Datacenter — only active DC in region
+    if (n->type == DATACENTER) {
+        int active_dc = 0;
+        for (int j = 0; j < g->node_count; j++) {
+            if (g->nodes[j].type == DATACENTER &&
+                g->nodes[j].region_id == n->region_id &&
+                g->nodes[j].is_active &&
+                j != node_id) active_dc++;
+        }
+        if (active_dc == 0) {
+            snprintf(reason,  rlen,
+                "Only active DC in %s, no CDN backup",
+                n->region);
+            snprintf(cascade, clen,
+                "Cloud services offline for region 2-4 hours");
+            snprintf(fix,     flen,
+                "Activate CDN failover, reroute DNS records");
+            return;
+        }
+    }
+
+    // Rule 5: Geographic high-risk zone
+    if (fabsf(n->latitude) > 30.0f) {
+        snprintf(reason,  rlen,
+            "High geo-risk zone (lat %.1f), damage risk",
+            n->latitude);
+        snprintf(cascade, clen,
+            "Physical damage likely in earthquake or storm");
+        snprintf(fix,     flen,
+            "Harden landing stations, armored cable segments");
+        return;
+    }
+
+    // Default fallback
+    snprintf(reason,  rlen,
+        "Elevated risk, limited redundancy");
+    snprintf(cascade, clen,
+        "Possible region degradation");
+    snprintf(fix,     flen,
+        "Add redundant routing paths");
+}
 
 void generate_prediction_report(Graph* g) {
     score_all_nodes(g);
@@ -25,10 +113,14 @@ void generate_prediction_report(Graph* g) {
                 g->nodes[i].risk_score,
                 get_risk_label(g->nodes[i].risk_score));
             
-            // Print reasons based on triggered rules
-            printf("|  Reason   : Identified by AI heuristic engine                |\n");
-            printf("|  Cascade  : Possible region degradation                      |\n");
-            printf("|  Fix      : Add redundant routing paths                      |\n");
+            char reason[96], cascade[96], fix[96];
+            build_node_reason(g, i,
+                reason,  sizeof(reason),
+                cascade, sizeof(cascade),
+                fix,     sizeof(fix));
+            printf("|  Reason   : %-52.52s |\n", reason);
+            printf("|  Cascade  : %-52.52s |\n", cascade);
+            printf("|  Fix      : %-52.52s |\n", fix);
             printf("+--------------------------------------------------------------+\n");
         }
     }
